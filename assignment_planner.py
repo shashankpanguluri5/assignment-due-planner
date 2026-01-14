@@ -1,3 +1,6 @@
+import json
+import os
+
 def show_menu():
     print("\n=== Assignment Due Planner ===")
     print("1. Add assignment")
@@ -6,8 +9,20 @@ def show_menu():
     print("4. Exit")
 
 assignments = []
+FILE_NAME = "assignments.json"
+
+def save_assignments():
+    with open(FILE_NAME, "w") as file:
+        json.dump(assignments, file, indent=4)
+
+def load_assignments():
+    if os.path.exists(FILE_NAME):
+        with open(FILE_NAME, "r") as file:
+            data = json.load(file)
+            assignments.extend(data)
 
 def main():
+    load_assignments()
     while True:
         show_menu()
         choice = input("Choose an option: ")
@@ -27,6 +42,7 @@ def main():
             }
 
             assignments.append(assignment)
+            save_assignments()
             print("Assignment added!")
 
         elif choice == "2":
@@ -37,13 +53,18 @@ def main():
                     status = "Done" if a["completed"] else "Pending"
                     print(f"{i}. {a['name']} | {a['course']} | Due: {a['due']} | {a['priority']} | {status}")
 
-        elif choice == "3":
-            num = int(input("Enter assignment number: ")) - 1
-            if 0 <= num < len(assignments):
-                assignments[num]["completed"] = True
-                print("Marked as completed.")
-            else:
-                print("Invalid number.")
+       elif choice == "3":
+    try:
+        num = int(input("Enter assignment number: ")) - 1
+        if 0 <= num < len(assignments):
+            assignments[num]["completed"] = True
+            save_assignments()
+            print("Marked as completed.")
+        else:
+            print("Invalid number.")
+    except ValueError:
+        print("Please enter a valid number.")
+
 
         elif choice == "4":
             print("Goodbye!")
